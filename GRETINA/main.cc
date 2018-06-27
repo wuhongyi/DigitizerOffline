@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 四 6月 28 04:53:22 2018 (+0800)
+// Last-Updated: 四 6月 28 04:34:12 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 54
+//     Update #: 61
 // URL: http://wuhongyi.cn 
 
 #include "RVersion.h"//版本判断
@@ -92,59 +92,50 @@ int main(int argc, char *argv[])
   TRint *theApp = new TRint("Rint", &argc, argv);
 
   TCanvas *c1 = new TCanvas("c1","",600,400);
-  c1->Divide(1,2);
+  c1->Divide(1,6);
   
-  TGraph *gg = new TGraph();
+  TGraph *gg = new TGraph();//waveform
   gg->SetTitle("");
   gg->GetXaxis()->SetTitle("");
   gg->GetYaxis()->SetTitle("");
 
-  TGraph *gg1 = new TGraph();
+  TGraph *gg1 = new TGraph();//led
   gg1->SetTitle("");
   gg1->GetXaxis()->SetTitle("");
   gg1->GetYaxis()->SetTitle("");
   gg1->SetMarkerColor(1);
   
-  TGraph *gg2 = new TGraph();
+  TGraph *gg2 = new TGraph();//cfd
   gg2->SetTitle("");
   gg2->GetXaxis()->SetTitle("");
   gg2->GetYaxis()->SetTitle("");
   gg2->SetMarkerColor(2);
   
-  TGraph *gg3 = new TGraph();
+  TGraph *gg3 = new TGraph();//trapezoidal
   gg3->SetTitle("");
   gg3->GetXaxis()->SetTitle("");
   gg3->GetYaxis()->SetTitle("");
   gg3->SetMarkerColor(3);
   
-  TGraph *gg4 = new TGraph();
+  TGraph *gg4 = new TGraph();//pole-zero cancellation
   gg4->SetTitle("");
   gg4->GetXaxis()->SetTitle("");
   gg4->GetYaxis()->SetTitle("");
   gg4->SetMarkerColor(4);
 
-  TGraph *pz = new TGraph();
-  pz->SetTitle("");
-  pz->GetXaxis()->SetTitle("");
-  pz->GetYaxis()->SetTitle("");
-  pz->SetMarkerColor(2);
-  
-  TGraph *bl = new TGraph();
-  bl->SetTitle("");
-  bl->GetXaxis()->SetTitle("");
-  bl->GetYaxis()->SetTitle("");
-  bl->SetMarkerColor(3);
+  TGraph *gg5 = new TGraph();//baseline restoration
+  gg5->SetTitle("");
+  gg5->GetXaxis()->SetTitle("");
+  gg5->GetYaxis()->SetTitle("");
+  gg5->SetMarkerColor(5);
   
   double data[10000];
-  double crrc1[10000];
-  double crrc2[10000];
-  double crrc3[10000];
-  double crrc4[10000];
+  double data1[10000];
+  double data2[10000];
+  double data3[10000];
+  double data4[10000];
+  double data5[10000];
 
-  double datapz[10000];
-  double databl[10000];
-
-  
   double tau = 2000;//2000
   int datapoint = 6000;
   double offset = 1000;
@@ -164,132 +155,63 @@ int main(int argc, char *argv[])
 
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-  bool flag = false;
+  int m = 200;
+  int k = 200;
+
+  int blk = 3000;
   
-  double gausstau = 100;
-  double aT = 1/gausstau;
-  double alpha = TMath::Exp(-1/gausstau);
-
-  double max1,max2,max3,max4;
-
-  max1 = -1e308;
   for (int i = 0; i < datapoint; ++i)
     {
-      if(i < 2)
+      if(i < 2*m+k)
 	{
-	  crrc1[i] = 0;
+	  data3[i] = 0;
 	}
       else
 	{
-	  crrc1[i] = 2*alpha*crrc1[i-1]-alpha*alpha*crrc1[i-2]+data[i]-alpha*(1+aT)*data[i-1];
+	  data3[i] = data3[i-1]+data[i]+data[i-2*m-k]-data[i-m]-data[i-m-k];
 	}
-      
-      if(crrc1[i] > max1) max1 = crrc1[i];
     }
-
-  max2 = -1e308;
-  for (int i = 0; i < datapoint; ++i)//error
-    {
-      if(i < 3)
-	{
-	  crrc2[i] = 0;
-	}
-      else
-	{
-	  crrc2[i] = 3*alpha*crrc2[i-1]-3*alpha*alpha*crrc2[i-2]+alpha*alpha*alpha*crrc2[i-3]+alpha*(1-aT/2)*data[i-1]-alpha*alpha*(1+aT/2)*data[i-2];
-	}
-      
-      if(crrc2[i] > max2) max2 = crrc2[i];
-    }
-
-  max3 = -1e308;
-  for (int i = 0; i < datapoint; ++i)//error
-    {
-      if(i < 4)
-	{
-	  crrc3[i] = 0;
-	}
-      else
-	{
-	  crrc3[i] = 4*alpha*crrc3[i-1]-6*alpha*alpha*crrc3[i-2]+4*alpha*alpha*alpha*crrc3[i-3]-alpha*alpha*alpha*alpha*crrc3[i-4]+alpha*(1.0/2-aT*aT/6)*data[i-1]-2.0/3*aT*alpha*alpha*data[i-2]-alpha*alpha*alpha*(1.0/2+aT/6)*data[i-3];
-	}
-
-      if(crrc3[i] > max3) max3 = crrc3[i];
-    }
-
-  max4 = -1e308;
-  for (int i = 0; i < datapoint; ++i)//error
-    {
-      if(i < 5)
-	{
-	  crrc4[i] = 0;
-	}
-      else
-	{
-	  crrc4[i] =5*alpha*crrc4[i-1]-10*alpha*alpha*crrc4[i-2]+10*alpha*alpha*alpha*crrc4[i-3]-5*alpha*alpha*alpha*alpha*crrc4[i-4]+alpha*alpha*alpha*alpha*alpha*crrc4[i-5]+(1.0/24)*(-aT*alpha+4*alpha)*data[i-1]+(1.0/24)*(-11*aT*alpha*alpha+12*alpha*alpha)*data[i-2]+(1.0/24)*(-12*alpha*alpha*alpha-11*aT*alpha*alpha*alpha)*data[i-3]+(1.0/24)*(-aT*alpha*alpha*alpha*alpha-4*alpha*alpha*alpha*alpha)*data[-4];
-	}
-
-      if(crrc4[i] > max4) max4 = crrc4[i];
-    }
-
 
   double temp = 0;
   for (int i = 0; i < datapoint; ++i)
     {
-      temp += crrc1[i];
-      datapz[i] = crrc1[i]+temp/tau;
+      temp += data3[i];
+      data4[i] = data3[i]+temp/tau;
     }
 
-  int blk = 3000;
+  
   for (int i = 0; i < datapoint; ++i)
     {
       if(i < 1)
 	{
-	  databl[i] = 0;
+	  data5[i] = 0;
 	}
       else
 	{
-	  databl[i] = (databl[i-1]+blk*datapz[i])/(1+blk);
+	  data5[i] = (data5[i-1]+blk*data4[i])/(1+blk);
 	}
     }
-  
 
+  
   for (int i = 0; i < datapoint; ++i)
     {
-      gg->SetPoint(i, i, data[i]);//i = 0~N-1
-      
-      if(flag)
-	{
-	  gg1->SetPoint(i, i, crrc1[i]/max1);
-	  gg2->SetPoint(i, i, crrc2[i]/max2);
-	  gg3->SetPoint(i, i, crrc3[i]/max3);
-	  gg4->SetPoint(i, i, crrc4[i]/max4);
-	}
-      else
-	{
-	  gg1->SetPoint(i, i, crrc1[i]);
-	  gg2->SetPoint(i, i, crrc2[i]);
-	  gg3->SetPoint(i, i, crrc3[i]);
-	  gg4->SetPoint(i, i, crrc4[i]);
-	}
-
-      pz->SetPoint(i,i,datapz[i]);
-      bl->SetPoint(i,i,databl[i]);
+      gg->SetPoint(i,i,data[i]);
+      gg3->SetPoint(i,i,data3[i]);
+      gg4->SetPoint(i,i,data4[i]);
+      gg5->SetPoint(i,i,data5[i]);
     }
-
+  
   c1->cd(1);
   gg->Draw("AP");
 
   c1->cd(2);
-  gg1->Draw("AP");
-  // gg2->Draw("Psame");
-  // gg3->Draw("Psame");
-  // gg4->Draw("Psame");
+  gg3->Draw("AP");
 
-  pz->Draw("Psame");
-  bl->Draw("Psame");
+  c1->cd(3);
+  gg4->Draw("AP");
 
-  // pz->Draw("AP");
+  c1->cd(4);
+  gg5->Draw("AP");
   
   c1->Update();
   
