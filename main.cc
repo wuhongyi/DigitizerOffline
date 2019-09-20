@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:21:20 2016 (+0800)
-// Last-Updated: 四 2月  8 22:01:16 2018 (+0800)
+// Last-Updated: 五 9月 20 19:26:34 2019 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 472
+//     Update #: 473
 // URL: http://wuhongyi.cn 
 
 #include "wuReadData.hh"
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
   off->PrintFilterPar();
 
 
-  int datawave[65536];
+  double datawave[65536];
   int datafastfilter[65536];
   double doubledatawave[65536];
   double datarc[65536];

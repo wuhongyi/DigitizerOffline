@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:25:34 2016 (+0800)
-// Last-Updated: 四 2月  8 21:22:25 2018 (+0800)
+// Last-Updated: 五 9月 20 19:23:26 2019 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 50
+//     Update #: 52
 // URL: http://wuhongyi.cn 
 
 #ifndef _OFFLINE_H_
@@ -29,6 +29,10 @@
 #define FASTFILTERRANGE_MIN 0
 #define SLOWFILTERRANGE_MAX 6
 #define SLOWFILTERRANGE_MIN 1
+#define CFDDELAY_MAX 63
+#define CFDDELAY_MIN 1
+#define CFDSCALE_MAX 7
+
 
 #define ROUND(x)    ((x) < 0.0 ? ceil((x) - 0.5) : floor((x) + 0.5))
 
@@ -54,7 +58,10 @@ public:
   void SetFastFilterPar(double fl,double fg,int thre);//us-建议0.1  us-建议0.1  units
   // 设置 energy filter 参数
   void SetSlowFilterPar(double sl,double sg,int slowrange = 2);//us us
+  // 设置 cfd filter 参数
+  void SetCfdFilterPar(double delay, int scale);
 
+  
   // 输出所有 filter 参数
   void PrintFilterPar();
 
@@ -70,10 +77,11 @@ public:
   void SetEventData(int size,int *data);
 
   // 获取该事件的波形（处理为基线为0的正脉冲）
-  void GetWaveData(int *data);
-  void GetFastFilter(int *data);//XIA
-  void GetSlowFilter(int *data);//XIA
-  void GetFirstOrderDifferential(int *data);
+  void GetWaveData(double *data);
+  void GetFastFilter(double *data);//XIA
+  void GetSlowFilter(double *data);//XIA
+  void GetCFDFilter(double *data);//XIA
+  void GetFirstOrderDifferential(double *data);
   
   // 获取该事件的上升事件
   double GetRiseTime();
@@ -115,6 +123,7 @@ private:
   int Module_ADCMSPS;
   double PreampTau;
 
+  int CFDDELAY,CFDSCALE;
   int FastFilterRange;
   int FL,FG;
   int FastThresh;
@@ -129,9 +138,9 @@ private:
   int CalculateRiseTimeType;
   int CalculateVertexPoint;
   int CalculateBaselinePoint;
-  int baseline;
+  double baseline;
   double deltaT;
-  int bsum0;
+  double bsum0;
   double b1, c0, c1, c2;
   int offset, x, y;
 
@@ -142,7 +151,7 @@ private:
   int fsum0, fsum1;
   
   int Size;
-  int Data[EVENTLENGTH];
+  double Data[EVENTLENGTH];
 };
 
 #endif /* _OFFLINE_H_ */

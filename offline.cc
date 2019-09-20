@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:25:47 2016 (+0800)
-// Last-Updated: 四 2月  8 21:23:53 2018 (+0800)
+// Last-Updated: 五 9月 20 19:23:26 2019 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 117
+//     Update #: 119
 // URL: http://wuhongyi.cn 
 
 #include "offline.hh"
@@ -49,6 +49,32 @@ void offline::SetPreampTau(double tau)
   b1 = exp(-1.0 * deltaT / PreampTau);
 }
 
+void offline::SetCfdFilterPar(double delay, int scale)
+{
+  if(Module_ADCMSPS == 100)
+    CFDDELAY = (unsigned int)ROUND(delay * (double)Module_ADCMSPS);
+  else if(Module_ADCMSPS == 250)
+    CFDDELAY = (unsigned int)ROUND(delay * (double)(Module_ADCMSPS / 2));
+  else if(Module_ADCMSPS == 500)
+    CFDDELAY = (unsigned int)ROUND(delay * (double)(Module_ADCMSPS / 5));
+
+  // Range check for CFDDelay
+  if(CFDDELAY < CFDDELAY_MIN)
+    {
+      CFDDELAY = CFDDELAY_MIN;
+    }
+  if(CFDDELAY > CFDDELAY_MAX)
+    {
+      CFDDELAY = CFDDELAY_MAX;
+    }
+
+  CFDSCALE = scale;
+  if(CFDSCALE > CFDSCALE_MAX)
+    {
+      CFDSCALE = CFDSCALE_MAX;
+    }
+}
+
 void offline::SetFastFilterPar(double fl,double fg,int thre)
 {
   FastFilterRange = 0;
@@ -59,21 +85,15 @@ void offline::SetFastFilterPar(double fl,double fg,int thre)
       FL = (unsigned int)ROUND(fl * (double)Module_ADCMSPS / std::pow(2.0, (double)FastFilterRange));
       FG = (unsigned int)ROUND(fg * (double)Module_ADCMSPS / std::pow(2.0, (double)FastFilterRange));
     }
-  else
+  else if(Module_ADCMSPS == 250)
     {
-      if(Module_ADCMSPS == 250)
-	{
-	  FL = (unsigned int)ROUND(fl * (double)(Module_ADCMSPS / 2) / std::pow(2.0, (double)FastFilterRange));
-	  FG = (unsigned int)ROUND(fg * (double)(Module_ADCMSPS / 2) / std::pow(2.0, (double)FastFilterRange));
-	}
-      else
-	{
-	if(Module_ADCMSPS == 500)
-	  {
-	    FL = (unsigned int)ROUND(fl * (double)(Module_ADCMSPS / 5) / std::pow(2.0, (double)FastFilterRange));
-	    FG = (unsigned int)ROUND(fg * (double)(Module_ADCMSPS / 5) / std::pow(2.0, (double)FastFilterRange));
-	  }
-	}
+      FL = (unsigned int)ROUND(fl * (double)(Module_ADCMSPS / 2) / std::pow(2.0, (double)FastFilterRange));
+      FG = (unsigned int)ROUND(fg * (double)(Module_ADCMSPS / 2) / std::pow(2.0, (double)FastFilterRange));
+    }
+  else if(Module_ADCMSPS == 500)
+    {
+      FL = (unsigned int)ROUND(fl * (double)(Module_ADCMSPS / 5) / std::pow(2.0, (double)FastFilterRange));
+      FG = (unsigned int)ROUND(fg * (double)(Module_ADCMSPS / 5) / std::pow(2.0, (double)FastFilterRange));
     }
 			
   if( (FL + FG) > FASTFILTER_MAX_LEN )
@@ -186,23 +206,22 @@ void offline::PrintFilterPar()
     {
       std::cout<<"TRIGGER_RISETIME:"<<(double)FL * std::pow(2.0, (double)FastFilterRange) / (double)Module_ADCMSPS<<"  TRIGGER_FLATTOP:"<<(double)FG * std::pow(2.0, (double)FastFilterRange) / (double)Module_ADCMSPS<<"  TRIGGER_THRESHOLD:"<<(double)FastThresh / (double)FL<<std::endl;
       std::cout<<"ENERGY_RISETIME:"<<(double)SL * std::pow(2.0, (double)SlowFilterRange) / (double)Module_ADCMSPS<<"  ENERGY_FLATTOP:"<<(double)SG * std::pow(2.0, (double)SlowFilterRange) / (double)Module_ADCMSPS<<std::endl;
+      std::cout<<"CFDDelay:"<<(double)CFDDELAY/(double)Module_ADCMSPS<<"  CFDScale:"<<CFDSCALE<<std::endl;
     }
-  else
+  else if(Module_ADCMSPS == 250)
     {
-      if(Module_ADCMSPS == 250)
-	{
-	  std::cout<<"TRIGGER_RISETIME:"<<(double)FL * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 2)<<"  TRIGGER_FLATTOP:"<<(double)FG * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 2)<<"  TRIGGER_THRESHOLD:"<<(double)FastThresh / ((double)FL * 2.0)<<std::endl;
-	  std::cout<<"ENERGY_RISETIME:"<<(double)SL * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 2)<<"  ENERGY_FLATTOP:"<<(double)SG * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 2)<<std::endl;
-	}
-      else
-	{
-	  if(Module_ADCMSPS == 500)
-	    {
-	      std::cout<<"TRIGGER_RISETIME:"<<(double)FL * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 5)<<"  TRIGGER_FLATTOP:"<<(double)FG * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 5)<<"  TRIGGER_THRESHOLD:"<<(double)FastThresh / ((double)FL * 5.0)<<std::endl;
-	      std::cout<<"ENERGY_RISETIME:"<<(double)SL * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 5)<<"  ENERGY_FLATTOP:"<<(double)SG * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 5)<<std::endl;
-	    }
-	}
+      std::cout<<"TRIGGER_RISETIME:"<<(double)FL * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 2)<<"  TRIGGER_FLATTOP:"<<(double)FG * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 2)<<"  TRIGGER_THRESHOLD:"<<(double)FastThresh / ((double)FL * 2.0)<<std::endl;
+      std::cout<<"ENERGY_RISETIME:"<<(double)SL * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 2)<<"  ENERGY_FLATTOP:"<<(double)SG * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 2)<<std::endl;
+      std::cout<<"CFDDelay:"<<(double)CFDDELAY/(double)(double)(Module_ADCMSPS/2)<<"  CFDScale:"<<CFDSCALE<<std::endl;
     }
+  else if(Module_ADCMSPS == 500)
+    {
+      std::cout<<"TRIGGER_RISETIME:"<<(double)FL * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 5)<<"  TRIGGER_FLATTOP:"<<(double)FG * std::pow(2.0, (double)FastFilterRange) / (double)(Module_ADCMSPS / 5)<<"  TRIGGER_THRESHOLD:"<<(double)FastThresh / ((double)FL * 5.0)<<std::endl;
+      std::cout<<"ENERGY_RISETIME:"<<(double)SL * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 5)<<"  ENERGY_FLATTOP:"<<(double)SG * std::pow(2.0, (double)SlowFilterRange) / (double)(Module_ADCMSPS / 5)<<std::endl;
+      std::cout<<"CFDDelay:"<<(double)CFDDELAY/(double)(Module_ADCMSPS/5)<<"  CFDScale:"<<CFDSCALE<<std::endl;
+    }
+
+
 
 }
 
@@ -258,7 +277,7 @@ void offline::DataPrimaryProcess()
     }
 }
 
-void offline::GetWaveData(int *data)
+void offline::GetWaveData(double *data)
 {
 for (int i = 0; i < Size; ++i)
   {
@@ -266,7 +285,7 @@ for (int i = 0; i < Size; ++i)
   }
 }
 
-void offline::GetFirstOrderDifferential(int *data)
+void offline::GetFirstOrderDifferential(double *data)
 {
 for (int i = 0; i < Size-1; ++i)
   {
@@ -275,7 +294,7 @@ for (int i = 0; i < Size-1; ++i)
  data[Size-1] = data[Size-2];
 }
 
-void offline::GetFastFilter(int *data)
+void offline::GetFastFilter(double *data)
 {
   FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
   FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
@@ -303,7 +322,27 @@ void offline::GetFastFilter(int *data)
     }
 }
 
-void offline::GetSlowFilter(int *data)
+void offline::GetCFDFilter(double *data)
+{
+  double tmp[EVENTLENGTH];
+  GetFastFilter(tmp);
+
+  // Decide CFD Scale value
+  double cfdscale = 1.0 - (double)CFDSCALE * 0.125;
+  // Compute CFD
+  for(x = CFDDELAY; x < Size; x++)
+    {
+      data[x] = (-tmp[x-CFDDELAY] + tmp[x] * cfdscale);
+    }
+
+  // Extend the value of cfd[CFD_Delay] to all non-computed ones from index 0 to CFD_Delay-1
+  for(x = 0; x < CFDDELAY; x++)
+    {
+      data[x] = data[CFDDELAY];
+    }
+}
+
+void offline::GetSlowFilter(double *data)
 {
   SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
   SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange);

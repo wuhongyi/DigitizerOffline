@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 四 6月 28 04:34:12 2018 (+0800)
+// Last-Updated: 日 7月  1 04:57:15 2018 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 61
+//     Update #: 62
 // URL: http://wuhongyi.cn 
 
 #include "RVersion.h"//版本判断
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   // gg->IsInside(Double_t x, Double_t y);// int   判断（x，y）是否在TCut选定的范围
   // gg->Eval(Double_t x);//double 获得x对应的y值
   // gg->GetN();//int 获得点数
-  
+  //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
   
   // Create an interactive ROOT application
   TRint *theApp = new TRint("Rint", &argc, argv);
