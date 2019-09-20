@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:21:20 2016 (+0800)
-// Last-Updated: 五 9月 20 19:26:34 2019 (+0800)
+// Last-Updated: 五 9月 20 19:31:40 2019 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 473
+//     Update #: 474
 // URL: http://wuhongyi.cn 
 
 #include "wuReadData.hh"
@@ -215,6 +215,8 @@ int main(int argc, char *argv[])
   double SlowFilterSG = wuReadData::ReadValue<double>("SlowFilterSG","ReadData.txt");
   int SlowFilterRange = wuReadData::ReadValue<int>("SlowFilterRange","ReadData.txt");
   double PreampTau = wuReadData::ReadValue<double>("PreampTau","ReadData.txt");
+  double cfddelay = wuReadData::ReadValue<double>("CFDFilterDelay","ReadData.txt"); 
+  int cfdscale = wuReadData::ReadValue<int>("CFDFilterScale","ReadData.txt");
   
   off->SetPulsePolarity(PulsePolarity);
   off->SetADCMSPS(ADCMSPS);
@@ -225,7 +227,7 @@ int main(int argc, char *argv[])
   off->SetFastFilterPar(FastFilterFL,FastFilterFG,FastFilterThre);//100
   off->SetSlowFilterPar(SlowFilterSL,SlowFilterSG,SlowFilterRange);
   off->SetPreampTau(PreampTau);
-
+  off->SetCfdFilterPar(cfddelay,cfdscale);
   off->PrintFilterPar();
 
 
