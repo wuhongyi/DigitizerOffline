@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:25:47 2016 (+0800)
-// Last-Updated: 五 9月 20 19:23:26 2019 (+0800)
+// Last-Updated: 二 9月 24 10:53:08 2019 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 119
+//     Update #: 120
 // URL: http://wuhongyi.cn 
 
 #include "offline.hh"
@@ -172,31 +172,31 @@ void offline::SetSlowFilterPar(double sl,double sg,int slowrange)
 	}
     }
 
-  switch(SlowFilterRange)
-    {
-    case 1:
-      PeakSample = SL + SG - 3;
-      break;
-    case 2:
-      PeakSample = SL + SG - 2;
-      break;
-    case 3:
-      PeakSample = SL + SG - 2;
-      break;
-    case 4:
-      PeakSample = SL + SG - 1;
-      break;
-    case 5:
-      PeakSample = SL + SG;
-      break;
-    case 6:
-      PeakSample = SL + SG + 1;
-      break;
-    default:
-      PeakSample = SL + SG - 2;
-      break;
-    }
-  
+  // switch(SlowFilterRange)
+  //   {
+  //   case 1:
+  //     PeakSample = SL + SG - 3;
+  //     break;
+  //   case 2:
+  //     PeakSample = SL + SG - 2;
+  //     break;
+  //   case 3:
+  //     PeakSample = SL + SG - 2;
+  //     break;
+  //   case 4:
+  //     PeakSample = SL + SG - 1;
+  //     break;
+  //   case 5:
+  //     PeakSample = SL + SG;
+  //     break;
+  //   case 6:
+  //     PeakSample = SL + SG + 1;
+  //     break;
+  //   default:
+  //     PeakSample = SL + SG - 2;
+  //     break;
+  //   }
+  PeakSample = SL + SG - 1;
 }
 
 void offline::PrintFilterPar()

@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:21:20 2016 (+0800)
-// Last-Updated: 五 9月 20 19:31:40 2019 (+0800)
+// Last-Updated: 六 7月 25 19:12:27 2020 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 474
+//     Update #: 494
 // URL: http://wuhongyi.cn 
 
 #include "wuReadData.hh"
@@ -338,39 +338,184 @@ int main(int argc, char *argv[])
 
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-  TH1I *hhight = new TH1I("hhight","",8000,0,16000);
-  TH1I *hgaus = new TH1I("hgaus","",8000,0,16000);
+  // TH1I *hhight = new TH1I("hhight","",8000,0,16000);
+  // TH1I *hgaus = new TH1I("hgaus","",8000,0,16000);
+  // double temp1,temp2;
+  // for (Long64_t entry = 0; entry < TotalEntry; ++entry)
+  //   {//循环处理从这里开始
+  //     fChain->GetEvent(entry);//这个是重点，拿到TChain中第entry行数据
+
+  //     if(entry%1000 == 0) std::cout<<entry<< " / "<< TotalEntry<<std::endl;
+  //     if(ch != 7) continue;
+
+  //     off->SetEventData(ltra, data);
+
+  //     off->GetWaveData(datawave);
+  //     for (int i = 0; i < ltra; ++i) doubledatawave[i] = datawave[i];
+  //     off->module_Gaussian(doubledatawave,datagaus,int(ltra),0.01,2,2);
+  //     off->Sallen_Key_Filter(datagaus,datask,int(ltra),3);
+  //     temp1 = -1000000;
+  //     temp2 = -1000000;
+  //     for (int i = 0; i < ltra; ++i)
+  // 	{
+  // 	  if(datask[i] > temp1) temp1 = datask[i];
+  // 	  if(datagaus[i] > temp2) temp2 = datagaus[i];
+  // 	}
+
+  //     hhight->Fill(temp1);
+  //     hgaus->Fill(temp2);
+  //   }
+
+  // c1->Divide(1,2);
+  // c1->cd(1);
+  // hhight->Draw("");
+  // c1->cd(2);
+  // hgaus->Draw("");
+
+  //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+  // QDC SHORT / QDC LONG
+  
+  // TH2I *psd = new TH2I("psd","",1000,0,400000,1000,0,400000);
+
+  // double temp1,temp2;
+  // for (Long64_t entry = 0; entry < TotalEntry; ++entry)
+  //   {//循环处理从这里开始
+  //     fChain->GetEvent(entry);//这个是重点，拿到TChain中第entry行数据
+
+  //     if(entry%1000 == 0) std::cout<<entry<< " / "<< TotalEntry<<std::endl;
+  //     if(sid!=4 || ch!= 0) continue;
+
+  //     off->SetEventData(ltra, data);
+  //     off->GetWaveData(datawave);
+
+
+  //     int flagover = -1;
+  //     for (int i = 0; i < ltra; ++i)
+  // 	{
+  // 	  if(datawave[i] > 200)
+  // 	    {
+  // 	      flagover = i;
+  // 	      break;
+  // 	    }
+  // 	}
+
+  //     if(flagover!=-1 && flagover<ltra-100)
+  // 	{
+  // 	  temp1 = 0;
+  // 	  temp2 = 0;
+  // 	  for (int i = flagover; i < flagover+20; ++i) temp1 += datawave[i];//20  14
+  // 	  for (int i = flagover; i < flagover+100; ++i) temp2 += datawave[i];
+  // 	  psd->Fill(temp2,temp1);
+  // 	}
+
+      
+  //   }
+
+
+  // c1->cd();
+  // psd->Draw("colz");
+
+  //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+  
+   TCutG *cutg1 = new TCutG("CUTG1",7);
+   cutg1->SetPoint(0,241265,207177);
+   cutg1->SetPoint(1,236052,215930);
+   cutg1->SetPoint(2,158443,156119);
+   cutg1->SetPoint(3,96471.1,96308.8);
+   cutg1->SetPoint(4,102456,92224.2);
+   cutg1->SetPoint(5,180644,162538);
+   cutg1->SetPoint(6,235666,203092);
+
+   TCutG *cutg2 = new TCutG("CUTG2",6);
+   cutg2->SetPoint(0,239913,182961);
+   cutg2->SetPoint(1,232577,194340);
+   cutg2->SetPoint(2,165200,142990);
+   cutg2->SetPoint(3,134117,117024);
+   cutg2->SetPoint(4,136820,104186);
+   cutg2->SetPoint(5,224082,173916);
+
+   double wave1[400];
+   double wave2[400];
+   double wave3[400];
+   for (int i = 0; i < 400; ++i)
+     {
+       wave1[i] = 0;
+       wave2[i] = 0;
+       wave3[i] = 0;
+     }
+   int count1 = 0;
+   int count2 = 0;
   double temp1,temp2;
+  double sum;
   for (Long64_t entry = 0; entry < TotalEntry; ++entry)
     {//循环处理从这里开始
       fChain->GetEvent(entry);//这个是重点，拿到TChain中第entry行数据
 
       if(entry%1000 == 0) std::cout<<entry<< " / "<< TotalEntry<<std::endl;
-      if(ch != 7) continue;
+      if(sid!=4 || ch!= 0) continue;
 
       off->SetEventData(ltra, data);
-
       off->GetWaveData(datawave);
-      for (int i = 0; i < ltra; ++i) doubledatawave[i] = datawave[i];
-      off->module_Gaussian(doubledatawave,datagaus,int(ltra),0.01,2,2);
-      off->Sallen_Key_Filter(datagaus,datask,int(ltra),3);
-      temp1 = -1000000;
-      temp2 = -1000000;
+
+
+      int flagover = -1;
       for (int i = 0; i < ltra; ++i)
   	{
-	  if(datask[i] > temp1) temp1 = datask[i];
-  	  if(datagaus[i] > temp2) temp2 = datagaus[i];
+  	  if(datawave[i] > 200)
+  	    {
+  	      flagover = i;
+  	      break;
+  	    }
   	}
 
-      hhight->Fill(temp1);
-      hgaus->Fill(temp2);
+      if(flagover!=-1 && flagover<ltra-100)
+  	{
+  	  temp1 = 0;
+  	  temp2 = 0;
+  	  for (int i = flagover; i < flagover+20; ++i) temp1 += datawave[i];
+  	  for (int i = flagover; i < flagover+100; ++i) temp2 += datawave[i];
+  	  // psd->Fill(temp2,temp1);
+
+  	  if(cutg1->IsInside(temp2,temp1) && count1<1000)
+  	    {
+  	      sum = 0;
+  	      for (int i = 0; i < 400; ++i) sum += datawave[i];
+  	      for (int i = 0; i < 400; ++i) wave1[i] += datawave[i]/sum;
+  	      count1++;
+  	    }
+  	  if(cutg2->IsInside(temp2,temp1) && count2<1000)
+  	    {
+  	      sum = 0;
+  	      for (int i = 0; i < 400; ++i) sum += datawave[i];
+  	      for (int i = 0; i < 400; ++i) wave2[i] += datawave[i]/sum;
+  	      count2++;
+  	    }
+  	}
+
+      if(count1==1000 && count2==1000) break;
+    }
+
+  for (int i = 0; i < 400; ++i)
+    {
+      wave1[i] /= 1000;
+      wave2[i] /= 1000;
+
+      wave3[i] = wave1[i]-wave2[i];
+      
+      ggga->SetPoint(i,i,wave1[i]);
+      gggb->SetPoint(i,i,wave2[i]);
+      gggc->SetPoint(i,i,wave3[i]);
     }
 
   c1->Divide(1,2);
   c1->cd(1);
-  hhight->Draw("");
+  ggga->Draw("AL");
+  gggb->Draw("same");
   c1->cd(2);
-  hgaus->Draw("");
+  gggc->Draw("AL");
+  
+   
   
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
   
