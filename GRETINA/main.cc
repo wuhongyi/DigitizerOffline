@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 日 7月  1 04:57:15 2018 (+0800)
+// Last-Updated: 五 8月  7 09:39:56 2020 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 62
+//     Update #: 63
 // URL: http://wuhongyi.cn 
 
 #include "RVersion.h"//版本判断
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   TRint *theApp = new TRint("Rint", &argc, argv);
 
   TCanvas *c1 = new TCanvas("c1","",600,400);
-  c1->Divide(1,6);
+  c1->Divide(1,4);
   
   TGraph *gg = new TGraph();//waveform
   gg->SetTitle("");
