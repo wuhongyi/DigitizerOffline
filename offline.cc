@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 四 12月  8 19:25:47 2016 (+0800)
-// Last-Updated: 二 9月 24 10:53:08 2019 (+0800)
+// Last-Updated: 六 8月 15 20:35:16 2020 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 120
+//     Update #: 123
 // URL: http://wuhongyi.cn 
 
 #include "offline.hh"
@@ -296,8 +296,22 @@ for (int i = 0; i < Size-1; ++i)
 
 void offline::GetFastFilter(double *data)
 {
-  FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
-  FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+  if(Module_ADCMSPS == 100)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+    }
+  else if(Module_ADCMSPS == 250)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+    }
+  else if(Module_ADCMSPS == 500)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+    } 
+
   // std::cout<<"FastLen:"<<FastLen<<"  FastGap:"<<FastGap<<std::endl;
   
   offset = 2*FastLen + FastGap - 1;
@@ -344,8 +358,21 @@ void offline::GetCFDFilter(double *data)
 
 void offline::GetSlowFilter(double *data)
 {
-  SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
-  SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
+  if(Module_ADCMSPS == 100)
+    {
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
+    }
+  else if(Module_ADCMSPS == 250)
+    {
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *2;
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *2;
+    }
+  else if(Module_ADCMSPS == 500)
+    {
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *5;
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *5;
+    }    
   
   c0 = -(1.0 - b1) * std::pow(b1, (double)SlowLen) * 4.0 / (1.0 - std::pow(b1, (double)SlowLen));
   c1 = (1.0 - b1) * 4.0;
@@ -581,10 +608,23 @@ int offline::GetQEnergy(int preTrigger,int sumPoint)
     Threshold = (double)FastThresh / ((double)FL * 2.0);
   else if(Module_ADCMSPS == 500)
     Threshold = (double)FastThresh / ((double)FL * 5.0);
-	
-  FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
-  FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
 
+  if(Module_ADCMSPS == 100)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+    }
+  else if(Module_ADCMSPS == 250)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+    }
+  else if(Module_ADCMSPS == 500)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+    } 
+  
   offset = 2*FastLen + FastGap - 1;
   for(x = offset; x < Size; x++)
     {
@@ -629,12 +669,28 @@ int offline::GetEnergy()
     Threshold = (double)FastThresh / ((double)FL * 2.0);
   else if(Module_ADCMSPS == 500)
     Threshold = (double)FastThresh / ((double)FL * 5.0);
-	
-  FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
-  FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
-  SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
-  SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
 
+  if(Module_ADCMSPS == 100)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange);
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange);
+    }
+  else if(Module_ADCMSPS == 250)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *2;
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *2;
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *2;      
+    }
+  else if(Module_ADCMSPS == 500)
+    {
+      FastLen = FL * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+      FastGap = FG * (unsigned int)std::pow(2.0, (double)FastFilterRange) *5;
+      SlowLen = SL * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *5;
+      SlowGap = SG * (unsigned int)std::pow(2.0, (double)SlowFilterRange) *5;
+    } 
 
   c0 = -(1.0 - b1) * std::pow(b1, (double)SlowLen) * 4.0 / (1.0 - std::pow(b1, (double)SlowLen));
   c1 = (1.0 - b1) * 4.0;
@@ -665,7 +721,13 @@ int offline::GetEnergy()
 
   // std::cout<<"Threshold:"<<Threshold<<"  x:"<<x<<std::endl;
   // x = x+SlowLen+SlowGap/2;
-  x = x+PeakSample*(unsigned int)std::pow(2.0, (double)SlowFilterRange);
+  if(Module_ADCMSPS == 100)
+    x = x+PeakSample*(unsigned int)std::pow(2.0, (double)SlowFilterRange);
+  else if(Module_ADCMSPS == 250)
+    x = x+PeakSample*(unsigned int)std::pow(2.0, (double)SlowFilterRange)*2;
+  else if(Module_ADCMSPS == 500)
+    x = x+PeakSample*(unsigned int)std::pow(2.0, (double)SlowFilterRange)*5;
+  
   offset = 2*SlowLen + SlowGap - 1;
 
   esum0 = 0;
