@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 五 8月  7 09:39:56 2020 (+0800)
+// Last-Updated: 一 8月 24 11:42:58 2020 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 63
+//     Update #: 67
 // URL: http://wuhongyi.cn 
 
 #include "RVersion.h"//版本判断
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
   int m = 200;
-  int k = 200;
+  int k = 20;
 
   int blk = 3000;
   
@@ -165,10 +165,18 @@ int main(int argc, char *argv[])
       if(i < 2*m+k)
 	{
 	  data3[i] = 0;
+	  data1[i] = 0;
+	  data2[i] = 0;
 	}
       else
 	{
 	  data3[i] = data3[i-1]+data[i]+data[i-2*m-k]-data[i-m]-data[i-m-k];
+	  data1[i] = data[i]+data[i-2*m-k]-data[i-m]-data[i-m-k];
+
+	  for (int j = 0; j < m; ++j)
+	    {
+	      data2[i] += (data[i-j]-0.9*data[i-m-k-j]);
+	    }
 	}
     }
 
@@ -196,6 +204,8 @@ int main(int argc, char *argv[])
   for (int i = 0; i < datapoint; ++i)
     {
       gg->SetPoint(i,i,data[i]);
+      gg1->SetPoint(i,i,data1[i]);
+      gg2->SetPoint(i,i,data2[i]);
       gg3->SetPoint(i,i,data3[i]);
       gg4->SetPoint(i,i,data4[i]);
       gg5->SetPoint(i,i,data5[i]);
@@ -211,7 +221,7 @@ int main(int argc, char *argv[])
   gg4->Draw("AP");
 
   c1->cd(4);
-  gg5->Draw("AP");
+  gg2->Draw("AP");
   
   c1->Update();
   
