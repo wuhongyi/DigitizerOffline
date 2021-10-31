@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 一 8月 24 11:42:58 2020 (+0800)
+// Last-Updated: 二 5月 25 17:25:33 2021 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 67
+//     Update #: 106
 // URL: http://wuhongyi.cn 
 
 #include "RVersion.h"//版本判断
@@ -59,6 +59,8 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 
+#include <fstream>
+#include <iostream>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc, char *argv[])
@@ -128,6 +130,12 @@ int main(int argc, char *argv[])
   gg5->GetXaxis()->SetTitle("");
   gg5->GetYaxis()->SetTitle("");
   gg5->SetMarkerColor(5);
+
+  TGraph *gg6 = new TGraph();//gaus
+  gg6->SetTitle("");
+  gg6->GetXaxis()->SetTitle("");
+  gg6->GetYaxis()->SetTitle("");
+  gg6->SetMarkerColor(4);
   
   double data[10000];
   double data1[10000];
@@ -135,8 +143,12 @@ int main(int argc, char *argv[])
   double data3[10000];
   double data4[10000];
   double data5[10000];
-
-  double tau = 2000;//2000
+  double data6[10000];
+  double data7[10000];
+  double datapz[10000];
+  double databl[10000];
+  
+  double tau = 5000;//2000
   int datapoint = 6000;
   double offset = 1000;
   for (int i = 0; i < datapoint; ++i)
@@ -147,18 +159,98 @@ int main(int argc, char *argv[])
 	}
       else
 	{
-	  data[i] = offset+gRandom->Gaus(0, 30)+5000*TMath::Exp(-(i-1000)/tau);
+	  data[i] = offset+gRandom->Gaus(0, 30)+3000*TMath::Exp(-(i-1000)/tau);
 	}
 
-      if(i >= 3500) data[i] += 3000*TMath::Exp(-(i-3500)/tau);
+      if(i >= 2500) data[i] += 3000*TMath::Exp(-(i-2500)/tau);
+
+      if(i >= 3000) data[i] += 3000*TMath::Exp(-(i-3000)/tau);
+
+
+      if(i >= 4500) data[i] += 3000*TMath::Exp(-(i-4500)/tau);
+      if(i >= 4800) data[i] += 3000*TMath::Exp(-(i-4800)/tau);
     }
 
   //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-  int m = 200;
-  int k = 20;
+  int m = 400;
+  int k = 80;
 
   int blk = 3000;
+
+  int kgaus = 100;
+
+
+  double gausstau = 100;
+  double aT = 1/gausstau;
+  double alpha = TMath::Exp(-1/gausstau);
+
+  double max1,max2,max3,max4,max5,max6;
+
+  max6 = -1e308;
+  for (int i = 0; i < datapoint; ++i)
+    {
+      // if(i < 2)
+      // 	{
+      // 	  data6[i] = 0;
+      // 	}
+      // else
+      // 	{
+      // 	  // data6[i] = ((kgaus+2*kgaus*kgaus)*data6[i-1]-kgaus*kgaus*data6[i-2]+2*(data[i]-offset))/(double(1+kgaus+kgaus*kgaus));
+
+      // 	  // data6[i] = (-(kgaus+kgaus*kgaus)*data6[i-2]+kgaus*data6[i-1]+2*(data[i-1]-offset))/(double(kgaus+kgaus*kgaus));
+      // 	}
+
+      if(i< 29)
+	{
+	  data7[i] = 0;
+	}
+      else
+	{
+	  data7[i] = 0;
+	  for (int j = 0; j < 10; ++j)
+	    {
+	      data7[i] += (data[i-j]-data[i-20-j]);
+	    }
+
+	  data7[i] /= 10;
+	}
+
+      
+      if(i < 5)
+	{
+	  data6[i] = 0;
+	}
+      else
+	{
+	  data6[i] =5*alpha*data6[i-1]-10*alpha*alpha*data6[i-2]+10*alpha*alpha*alpha*data6[i-3]-5*alpha*alpha*alpha*alpha*data6[i-4]+alpha*alpha*alpha*alpha*alpha*data6[i-5]+(1.0/24)*(-aT*alpha+4*alpha)*data[i-1]+(1.0/24)*(-11*aT*alpha*alpha+12*alpha*alpha)*data[i-2]+(1.0/24)*(-12*alpha*alpha*alpha-11*aT*alpha*alpha*alpha)*data[i-3]+(1.0/24)*(-aT*alpha*alpha*alpha*alpha-4*alpha*alpha*alpha*alpha)*data[i-4];
+	}
+      
+    }
+
+
+  double temp = 0;
+  for (int i = 0; i < datapoint; ++i)
+    {
+      temp += data6[i];
+      datapz[i] = data6[i]+temp/tau;
+    }
+
+  for (int i = 0; i < datapoint; ++i)
+    {
+      if(i < 1)
+	{
+	  databl[i] = 0;
+	}
+      else
+	{
+	  databl[i] = (databl[i-1]+blk*datapz[i])/(1+blk);
+	}
+
+      if(databl[i] > max6 && i < 2000) max6 = databl[i];
+    }
+
+
   
   for (int i = 0; i < datapoint; ++i)
     {
@@ -180,11 +272,14 @@ int main(int argc, char *argv[])
 	}
     }
 
-  double temp = 0;
+  temp = 0;
+  max4 = -1e308;
   for (int i = 0; i < datapoint; ++i)
     {
       temp += data3[i];
       data4[i] = data3[i]+temp/tau;
+      
+      if(i< 4000 && data4[i] > max4) max4 = data4[i];
     }
 
   
@@ -206,9 +301,10 @@ int main(int argc, char *argv[])
       gg->SetPoint(i,i,data[i]);
       gg1->SetPoint(i,i,data1[i]);
       gg2->SetPoint(i,i,data2[i]);
-      gg3->SetPoint(i,i,data3[i]);
-      gg4->SetPoint(i,i,data4[i]);
+      gg3->SetPoint(i,i,data7[i]);
+      gg4->SetPoint(i,i,data4[i]/max4);
       gg5->SetPoint(i,i,data5[i]);
+      gg6->SetPoint(i,i,databl[i]/max6);
     }
   
   c1->cd(1);
@@ -221,9 +317,23 @@ int main(int argc, char *argv[])
   gg4->Draw("AP");
 
   c1->cd(4);
-  gg2->Draw("AP");
+  gg6->Draw("AP");
   
   c1->Update();
+
+
+  std::ofstream dataw;//
+  dataw.open("filter.txt");//ios::bin ios::app
+  if(!dataw.is_open())
+    {
+      std::cout<<"can't open file."<<std::endl;
+    }
+  for (int i = 0; i < datapoint; ++i)
+    {
+      // dataw<<i<<" "<<data[i]<<" "<<data4[i]/max4<<" "<<databl[i]/max6<<std::endl;
+      dataw << i << " " <<data[i]<<" "<< data4[i]/max4<<std::endl;
+    }
+  dataw.close();
   
   
   

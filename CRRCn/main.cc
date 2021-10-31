@@ -4,10 +4,13 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 三 6月 27 04:13:53 2018 (+0800)
-// Last-Updated: 四 6月 28 04:53:22 2018 (+0800)
+// Last-Updated: 日 10月 31 20:45:29 2021 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 54
+//     Update #: 87
 // URL: http://wuhongyi.cn 
+
+//g++ `root-config --cflags` main.cc  `root-config --glibs` -l Spectrum -o 123
+
 
 #include "RVersion.h"//版本判断
 #include "TApplication.h"
@@ -59,7 +62,61 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 
+#include <iostream>
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void SecondOrderIIR(int32_t data_in, int32_t *data_out,
+		    int32_t b0,  int32_t b1 ,  int32_t b2,
+		    int32_t a1,  int32_t a2
+		    )
+{
+
+  int32_t temp=0; //fixed point math: 16 bit integer + 16 bit fractional
+  int32_t out_upscaled=0; //fixed point math: 16 bit integer + 16 bit fractional
+
+  static int16_t  m_x2 =0; // x[n-2]
+  static int32_t m_y2 =0; // y[n-2] //fixed point math: 16 bit integer + 16 bit fractional
+  static int32_t m_y2_b =0; // y[n-2] //fixed point math: 16 bit integer + 16 bit fractional
+
+  static int16_t m_x1 =0;
+  static int32_t m_y1 =0; //fixed point math: 16 bit integer + 16 bit fractional
+  static int32_t m_y1_b =0; //fixed point math: 16 bit integer + 16 bit fractional
+
+
+  // static int32_t c_b0 = 0; //fixed point math: 24 bit integer + 4 bit fractional
+  // static int32_t c_b1 = 0; //fixed point math: 24 bit integer + 4 bit fractional
+  // static int32_t c_b2 = 0; //fixed point math: 24 bit integer + 4 bit fractional
+  // static int32_t c_a1 = 0; //fixed point math: 24 bit integer + 4 bit fractional
+  // static int32_t c_a2 = 0; //fixed point math: 24 bit integer + 4 bit fractional
+
+  int N = 16777215;
+  double c_b0 = b0/(double)N; 
+  double c_b1 = b1/(double)N; 
+  double c_b2 = b2/(double)N; 
+  double c_a1 = a1/(double)N; 
+  double c_a2 = a2/(double)N; 
+  
+  out_upscaled = c_b0*(data_in)
+    + c_b1*(m_x1)
+    + c_b2*(m_x2)
+    + c_a1*(m_y1)
+    + c_a2*(m_y2);
+
+  temp = out_upscaled;
+  std::cout<<temp<<std::endl;
+
+  // *data_out =temp.range()>>16;
+  *data_out = temp;
+  m_x2 = m_x1;
+  m_y2 = m_y1;
+  m_x1 = data_in;
+  m_y1 = temp;
+
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -91,7 +148,7 @@ int main(int argc, char *argv[])
   // Create an interactive ROOT application
   TRint *theApp = new TRint("Rint", &argc, argv);
 
-  TCanvas *c1 = new TCanvas("c1","",600,400);
+  TCanvas *c1 = new TCanvas("c1","c1",600,400);
   c1->Divide(1,2);
   
   TGraph *gg = new TGraph();
@@ -123,6 +180,19 @@ int main(int argc, char *argv[])
   gg4->GetYaxis()->SetTitle("");
   gg4->SetMarkerColor(4);
 
+  TGraph *gg5 = new TGraph();
+  gg5->SetTitle("");
+  gg5->GetXaxis()->SetTitle("");
+  gg5->GetYaxis()->SetTitle("");
+  gg5->SetMarkerColor(5);
+
+  TGraph *giir = new TGraph();
+  giir->SetTitle("");
+  giir->GetXaxis()->SetTitle("");
+  giir->GetYaxis()->SetTitle("");
+  giir->SetMarkerColor(6);
+
+  
   TGraph *pz = new TGraph();
   pz->SetTitle("");
   pz->GetXaxis()->SetTitle("");
@@ -135,15 +205,17 @@ int main(int argc, char *argv[])
   bl->GetYaxis()->SetTitle("");
   bl->SetMarkerColor(3);
   
-  double data[10000];
+  int32_t data[10000];
   double crrc1[10000];
   double crrc2[10000];
   double crrc3[10000];
   double crrc4[10000];
-
+  double crrc5[10000];
+  
   double datapz[10000];
   double databl[10000];
 
+  int32_t iir[10000];
   
   double tau = 2000;//2000
   int datapoint = 6000;
@@ -226,12 +298,30 @@ int main(int argc, char *argv[])
 	}
       else
 	{
-	  crrc4[i] =5*alpha*crrc4[i-1]-10*alpha*alpha*crrc4[i-2]+10*alpha*alpha*alpha*crrc4[i-3]-5*alpha*alpha*alpha*alpha*crrc4[i-4]+alpha*alpha*alpha*alpha*alpha*crrc4[i-5]+(1.0/24)*(-aT*alpha+4*alpha)*data[i-1]+(1.0/24)*(-11*aT*alpha*alpha+12*alpha*alpha)*data[i-2]+(1.0/24)*(-12*alpha*alpha*alpha-11*aT*alpha*alpha*alpha)*data[i-3]+(1.0/24)*(-aT*alpha*alpha*alpha*alpha-4*alpha*alpha*alpha*alpha)*data[-4];
+	  crrc4[i] =5*alpha*crrc4[i-1]-10*alpha*alpha*crrc4[i-2]+10*alpha*alpha*alpha*crrc4[i-3]-5*alpha*alpha*alpha*alpha*crrc4[i-4]+alpha*alpha*alpha*alpha*alpha*crrc4[i-5]+(1.0/24)*(-aT*alpha+4*alpha)*data[i-1]+(1.0/24)*(-11*aT*alpha*alpha+12*alpha*alpha)*data[i-2]+(1.0/24)*(-12*alpha*alpha*alpha-11*aT*alpha*alpha*alpha)*data[i-3]+(1.0/24)*(-aT*alpha*alpha*alpha*alpha-4*alpha*alpha*alpha*alpha)*data[i-4];
 	}
 
       if(crrc4[i] > max4) max4 = crrc4[i];
     }
 
+
+  for (int i = 0; i < datapoint; ++i)
+    {
+      SecondOrderIIR(data[i],&iir[i],356671,-713342,356671,-638033,-1016141);
+
+      
+    }
+
+  
+  
+  for (int i = 0; i < datapoint; ++i)
+    {
+      if(i==0) crrc5[i] = data[i]-offset;
+      else crrc5[i] = crrc5[i-1]+(data[i]-offset)-(data[i-1]-offset)*TMath::Exp(-1.0/tau);
+	
+    }
+
+  
 
   double temp = 0;
   for (int i = 0; i < datapoint; ++i)
@@ -264,6 +354,7 @@ int main(int argc, char *argv[])
 	  gg2->SetPoint(i, i, crrc2[i]/max2);
 	  gg3->SetPoint(i, i, crrc3[i]/max3);
 	  gg4->SetPoint(i, i, crrc4[i]/max4);
+	  gg5->SetPoint(i, i, crrc5[i]);
 	}
       else
 	{
@@ -271,8 +362,10 @@ int main(int argc, char *argv[])
 	  gg2->SetPoint(i, i, crrc2[i]);
 	  gg3->SetPoint(i, i, crrc3[i]);
 	  gg4->SetPoint(i, i, crrc4[i]);
+	  gg5->SetPoint(i, i, crrc5[i]);
 	}
 
+      giir->SetPoint(i,i,iir[i]);
       pz->SetPoint(i,i,datapz[i]);
       bl->SetPoint(i,i,databl[i]);
     }
@@ -281,13 +374,14 @@ int main(int argc, char *argv[])
   gg->Draw("AP");
 
   c1->cd(2);
-  gg1->Draw("AP");
+  // gg1->Draw("AP");
   // gg2->Draw("Psame");
   // gg3->Draw("Psame");
-  // gg4->Draw("Psame");
-
-  pz->Draw("Psame");
-  bl->Draw("Psame");
+  giir->Draw("AP");
+  // gg5->Draw("AP");
+  
+  // pz->Draw("Psame");
+  // bl->Draw("AP");
 
   // pz->Draw("AP");
   
