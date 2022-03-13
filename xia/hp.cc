@@ -4,9 +4,9 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 3月 12 15:05:27 2022 (+0800)
-// Last-Updated: 六 3月 12 16:12:00 2022 (+0800)
+// Last-Updated: 日 3月 13 20:56:58 2022 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 8
+//     Update #: 14
 // URL: http://wuhongyi.cn 
 
 #include <iostream>
@@ -84,15 +84,3 @@ void hp()
 
 // 
 // hp.cc ends here
-
-
-
-
-
-
-
-
-
-
-
-
