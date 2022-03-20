@@ -4,19 +4,20 @@
 // Author: Hongyi Wu(吴鸿毅)
 // Email: wuhongyi@qq.com 
 // Created: 六 3月 12 15:05:27 2022 (+0800)
-// Last-Updated: 日 3月 13 20:56:58 2022 (+0800)
+// Last-Updated: 日 3月 20 16:43:30 2022 (+0800)
 //           By: Hongyi Wu(吴鸿毅)
-//     Update #: 14
+//     Update #: 34
 // URL: http://wuhongyi.cn 
 
 #include <iostream>
 #include "TMath.h"
+#include <iomanip>
 
 void hp()
 {
-  double tau1 = 50;//us
+  double tau1 = 55.0;//us
   double tau2 = 1000;//us
-  double beta = 0.04;
+  double beta = 0.00;
   double m = 504;
   double g = 160;
   double deltat = 10;//ns
@@ -79,7 +80,7 @@ void hp()
   mattmp.Print();
 
 
-  std::cout<<mattmp(0,0)<<"  "<<mattmp(0,1)/r1<<"  "<<mattmp(0,2)<<"  "<<mattmp(0,3)<<std::endl;
+  std::cout<<setprecision(16) <<mattmp(0,0)<<"  "<<mattmp(0,1)/r1<<"  "<<mattmp(0,2)<<"  "<<mattmp(0,3)<<std::endl;
 }
 
 // 
